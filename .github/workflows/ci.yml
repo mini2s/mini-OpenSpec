@@ -51,7 +51,8 @@ jobs:
 
       - name: Print environment diagnostics
         shell: ${{ matrix.shell }}
-        run: node -p 'JSON.stringify({ platform: process.platform, arch: process.arch, shell: process.env.SHELL || process.env.ComSpec || "" })'
+        run: |
+          node -p "JSON.stringify({ platform: process.platform, arch: process.arch, shell: process.env.SHELL || process.env.ComSpec || '' })"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
