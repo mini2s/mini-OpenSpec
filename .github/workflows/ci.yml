@@ -23,13 +23,10 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            shell: bash
             label: linux-bash
           - os: macos-latest
-            shell: bash
             label: macos-bash
           - os: windows-latest
-            shell: pwsh
             label: windows-pwsh
 
     steps:
@@ -50,21 +47,17 @@ jobs:
           cache: 'pnpm'
 
       - name: Print environment diagnostics
-        shell: ${{ matrix.shell }}
         run: |
           node -p "JSON.stringify({ platform: process.platform, arch: process.arch, shell: process.env.SHELL || process.env.ComSpec || '' })"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        shell: ${{ matrix.shell }}
 
       - name: Build project
         run: pnpm run build
-        shell: ${{ matrix.shell }}
 
       - name: Run tests
         run: pnpm test
-        shell: ${{ matrix.shell }}
 
       - name: Upload test coverage
         if: matrix.os == 'ubuntu-latest'
