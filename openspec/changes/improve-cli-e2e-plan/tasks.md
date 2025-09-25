@@ -6,7 +6,6 @@
 ## 2. Phase 2 – Expand Cross-Shell Validation
 - [ ] 2.1 Exercise both entry points (`node dist/cli.js`, `bin/openspec.js`) in the spawn suite and add diagnostics for shell/OS context.
 - [ ] 2.2 Extend GitHub Actions to run the spawn suite across a matrix of shells (bash, zsh, fish, pwsh, cmd) on macOS, Linux, and Windows runners.
-- [ ] 2.3 Update `CROSS-SHELL-PLAN.md` with the matrix details, keeping non-TTY defaults and noting any targeted TTY scenarios for prompts/spinners.
 
 ## 3. Phase 3 – Package Validation (Optional)
 - [ ] 3.1 Add a simple CI job on runners with registry access that runs `pnpm pack`, installs the tarball into a temp workspace (e.g., `pnpm add --no-save`), and executes `pnpm exec openspec --version`.
