@@ -15,7 +15,7 @@
   <a href="https://nodejs.org/"><img alt="node version" src="https://img.shields.io/node/v/@fission-ai/openspec?style=flat-square" /></a>
   <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" /></a>
   <a href="https://conventionalcommits.org"><img alt="Conventional Commits" src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=flat-square" /></a>
-  <a href="https://discord.gg/saTQQGQZ"><img alt="Discord" src="https://img.shields.io/discord/1411657095639601154?logo=discord&logoColor=white&style=flat-square" /></a>
+  <a href="https://discord.gg/saTQQGQZ"><img alt="Discord" src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white&style=flat-square" /></a>
 </p>
 
 <p align="center">
@@ -83,13 +83,14 @@ These tools have built-in OpenSpec commands. Select the OpenSpec integration whe
 |------|----------|
 | **Claude Code** | `/openspec:proposal`, `/openspec:apply`, `/openspec:archive` |
 | **Cursor** | `/openspec-proposal`, `/openspec-apply`, `/openspec-archive` |
+| **OpenCode** | `/openspec-proposal`, `/openspec-apply`, `/openspec-archive` |
 
 #### AGENTS.md Compatible
 These tools automatically read workflow instructions from `openspec/AGENTS.md`. Ask them to follow the OpenSpec workflow if they need a reminder. Learn more about the [AGENTS.md convention](https://agents.md/).
 
 | Tools |
 |-------|
-| Codex • Amp • Jules • OpenCode • Gemini CLI • GitHub Copilot • Others |
+| Codex • Amp • Jules • Gemini CLI • GitHub Copilot • Others |
 
 ### Install & Initialize
 
@@ -184,13 +185,13 @@ You: Please archive the change
      (Shortcut for tools with slash commands: /openspec:archive add-profile-filters)
 
 AI:  I'll archive the add-profile-filters change.
-     *Runs: openspec archive add-profile-filters*
+    *Runs: openspec archive add-profile-filters --yes*
      ✓ Change archived successfully. Specs updated. Ready for the next feature!
 ```
 
 Or run the command yourself in terminal:
 ```bash
-$ openspec archive add-profile-filters  # Archive the completed change
+$ openspec archive add-profile-filters --yes  # Archive the completed change without prompts
 ```
 
 **Note:** Tools with native slash commands (Claude Code, Cursor) can use the shortcuts shown. All other tools work with natural language requests to "create an OpenSpec proposal", "apply the OpenSpec change", or "archive the change".
@@ -202,7 +203,7 @@ openspec list               # View active change folders
 openspec view               # Interactive dashboard of specs and changes
 openspec show <change>      # Display change details (proposal, tasks, spec updates)
 openspec validate <change>  # Check spec formatting and structure
-openspec archive <change>   # Move a completed change into archive/
+openspec archive <change> [--yes|-y]   # Move a completed change into archive/ (non-interactive with --yes)
 ```
 
 ## Example: How AI Creates OpenSpec Files
