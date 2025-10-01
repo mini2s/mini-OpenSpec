@@ -7,6 +7,7 @@ The command SHALL configure AI coding assistants with OpenSpec instructions usin
 - **AND** list every available tool with a checkbox:
   - Claude Code (creates or refreshes CLAUDE.md and slash commands)
   - Cursor (creates or refreshes `.cursor/commands/*` slash commands)
+  - OpenCode (creates or refreshes `.opencode/command/openspec-*.md` slash commands)
   - Windsurf (creates or refreshes `.windsurf/workflows/openspec-*.md` workflows)
   - AGENTS.md standard (creates or refreshes AGENTS.md with OpenSpec markers)
 - **AND** show "(already configured)" beside tools whose managed files exist so users understand selections will refresh content
