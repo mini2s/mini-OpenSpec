@@ -515,7 +515,8 @@ export class InitCommand {
         kind: 'heading',
         value: OTHER_TOOLS_HEADING_VALUE,
         label: {
-          primary: 'Other tools (supported via chat interactions)',
+          primary:
+            'Other tools (use Universal AGENTS.md for Codex, Amp, VS Code, GitHub Copilot, …)',
         },
         selectable: false,
       },
