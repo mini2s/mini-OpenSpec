@@ -1,5 +1,12 @@
 # @fission-ai/openspec
 
+## 0.7.0
+
+### Minor Changes
+
+- Add native Kilo Code workflow integration so `openspec init` and `openspec update` manage `.kilocode/workflows/openspec-*.md` files.
+- Always scaffold the managed root `AGENTS.md` hand-off stub and regroup the AI tool prompts during init/update to keep instructions consistent.
+
 ## 0.6.0
 
 ### Minor Changes

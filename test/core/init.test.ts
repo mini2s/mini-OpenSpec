@@ -129,8 +129,8 @@ describe('InitCommand', () => {
       expect(updatedContent).toContain('Custom instructions here');
     });
 
-    it('should create AGENTS.md in project root when AGENTS standard is selected', async () => {
-      queueSelections('agents', DONE);
+    it('should always create AGENTS.md in project root', async () => {
+      queueSelections(DONE);
 
       await initCommand.execute(testDir);
 
@@ -265,6 +265,42 @@ describe('InitCommand', () => {
       expect(archiveContent).toContain('openspec list --specs');
     });
 
+    it('should create Kilo Code workflows with templates', async () => {
+      queueSelections('kilocode', DONE);
+
+      await initCommand.execute(testDir);
+
+      const proposalPath = path.join(
+        testDir,
+        '.kilocode/workflows/openspec-proposal.md'
+      );
+      const applyPath = path.join(
+        testDir,
+        '.kilocode/workflows/openspec-apply.md'
+      );
+      const archivePath = path.join(
+        testDir,
+        '.kilocode/workflows/openspec-archive.md'
+      );
+
+      expect(await fileExists(proposalPath)).toBe(true);
+      expect(await fileExists(applyPath)).toBe(true);
+      expect(await fileExists(archivePath)).toBe(true);
+
+      const proposalContent = await fs.readFile(proposalPath, 'utf-8');
+      expect(proposalContent).toContain('<!-- OPENSPEC:START -->');
+      expect(proposalContent).toContain('**Guardrails**');
+      expect(proposalContent).not.toContain('---\n');
+
+      const applyContent = await fs.readFile(applyPath, 'utf-8');
+      expect(applyContent).toContain('Work through tasks sequentially');
+      expect(applyContent).not.toContain('---\n');
+
+      const archiveContent = await fs.readFile(archivePath, 'utf-8');
+      expect(archiveContent).toContain('openspec list --specs');
+      expect(archiveContent).not.toContain('---\n');
+    });
+
     it('should add new tool when OpenSpec already exists', async () => {
       queueSelections('claude', DONE, 'cursor', DONE);
       await initCommand.execute(testDir);
@@ -277,12 +313,10 @@ describe('InitCommand', () => {
       expect(await fileExists(cursorProposal)).toBe(true);
     });
 
-    it('should error when extend mode selects no tools', async () => {
+    it('should allow extend mode with no additional native tools', async () => {
       queueSelections('claude', DONE, DONE);
       await initCommand.execute(testDir);
-      await expect(initCommand.execute(testDir)).rejects.toThrow(
-        /OpenSpec seems to already be initialized/
-      );
+      await expect(initCommand.execute(testDir)).resolves.toBeUndefined();
     });
 
     it('should handle non-existent target directory', async () => {
@@ -306,7 +340,7 @@ describe('InitCommand', () => {
     });
 
     it('should reference AGENTS compatible assistants in success message', async () => {
-      queueSelections('agents', DONE);
+      queueSelections(DONE);
       const logSpy = vi.spyOn(console, 'log');
 
       await initCommand.execute(testDir);
@@ -326,7 +360,9 @@ describe('InitCommand', () => {
 
       expect(mockPrompt).toHaveBeenCalledWith(
         expect.objectContaining({
-          baseMessage: expect.stringContaining('Which AI tools do you use?'),
+          baseMessage: expect.stringContaining(
+            'Which natively supported AI tools do you use?'
+          ),
         })
       );
     });
@@ -352,6 +388,16 @@ describe('InitCommand', () => {
         (choice: any) => choice.value === 'claude'
       );
       expect(claudeChoice.configured).toBe(true);
+    });
+
+    it('should preselect Kilo Code when workflows already exist', async () => {
+      queueSelections('kilocode', DONE, 'kilocode', DONE);
+      await initCommand.execute(testDir);
+      await initCommand.execute(testDir);
+
+      const secondRunArgs = mockPrompt.mock.calls[1][0];
+      const preselected = secondRunArgs.initialSelected ?? [];
+      expect(preselected).toContain('kilocode');
     });
   });
 
