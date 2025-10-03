@@ -152,14 +152,23 @@ describe('InitCommand', () => {
       expect(await fileExists(wsArchive)).toBe(true);
 
       const proposalContent = await fs.readFile(wsProposal, 'utf-8');
+      expect(proposalContent).toContain('---');
+      expect(proposalContent).toContain('description: Scaffold a new OpenSpec change and validate strictly.');
+      expect(proposalContent).toContain('auto_execution_mode: 3');
       expect(proposalContent).toContain('<!-- OPENSPEC:START -->');
       expect(proposalContent).toContain('**Guardrails**');
 
       const applyContent = await fs.readFile(wsApply, 'utf-8');
+      expect(applyContent).toContain('---');
+      expect(applyContent).toContain('description: Implement an approved OpenSpec change and keep tasks in sync.');
+      expect(applyContent).toContain('auto_execution_mode: 3');
       expect(applyContent).toContain('<!-- OPENSPEC:START -->');
       expect(applyContent).toContain('Work through tasks sequentially');
 
       const archiveContent = await fs.readFile(wsArchive, 'utf-8');
+      expect(archiveContent).toContain('---');
+      expect(archiveContent).toContain('description: Archive a deployed OpenSpec change and update specs.');
+      expect(archiveContent).toContain('auto_execution_mode: 3');
       expect(archiveContent).toContain('<!-- OPENSPEC:START -->');
       expect(archiveContent).toContain('Run `openspec archive <id> --yes`');
     });

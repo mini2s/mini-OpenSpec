@@ -15,8 +15,13 @@ export class WindsurfSlashCommandConfigurator extends SlashCommandConfigurator {
     return FILE_PATHS[id];
   }
 
-  protected getFrontmatter(_id: SlashCommandId): string | undefined {
-    // Keep Windsurf workflows simple: no YAML frontmatter
-    return undefined;
+  protected getFrontmatter(id: SlashCommandId): string | undefined {
+    const descriptions: Record<SlashCommandId, string> = {
+      proposal: 'Scaffold a new OpenSpec change and validate strictly.',
+      apply: 'Implement an approved OpenSpec change and keep tasks in sync.',
+      archive: 'Archive a deployed OpenSpec change and update specs.'
+    };
+    const description = descriptions[id];
+    return `---\ndescription: ${description}\nauto_execution_mode: 3\n---`;
   }
 }
