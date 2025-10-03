@@ -29,6 +29,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@fission-ai'
+          always-auth: true
 
       - run: pnpm install --frozen-lockfile
 
@@ -41,3 +44,5 @@ jobs:
           publish: "echo 'Dry run: changeset publish would execute here'"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
