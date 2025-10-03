@@ -14,12 +14,6 @@ const ALL_COMMANDS: SlashCommandId[] = ['proposal', 'apply', 'archive'];
 export abstract class SlashCommandConfigurator {
   abstract readonly toolId: string;
   abstract readonly isAvailable: boolean;
-  
-  // Optional intro content that appears before the managed markers
-  // Subclasses can override to add stable headings/descriptions
-  protected getIntro(_id: SlashCommandId): string | undefined {
-    return undefined;
-  }
 
   getTargets(): SlashCommandTarget[] {
     return ALL_COMMANDS.map((id) => ({
@@ -40,13 +34,9 @@ export abstract class SlashCommandConfigurator {
         await this.updateBody(filePath, body);
       } else {
         const frontmatter = this.getFrontmatter(target.id);
-        const intro = this.getIntro(target.id);
         const sections: string[] = [];
         if (frontmatter) {
           sections.push(frontmatter.trim());
-        }
-        if (intro) {
-          sections.push(intro.trim());
         }
         sections.push(`${OPENSPEC_MARKERS.start}\n${body}\n${OPENSPEC_MARKERS.end}`);
         const content = sections.join('\n') + '\n';

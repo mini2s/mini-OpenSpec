@@ -153,15 +153,15 @@ describe('InitCommand', () => {
 
       const proposalContent = await fs.readFile(wsProposal, 'utf-8');
       expect(proposalContent).toContain('<!-- OPENSPEC:START -->');
-      expect(proposalContent).toContain('OpenSpec: Proposal');
+      expect(proposalContent).toContain('**Guardrails**');
 
       const applyContent = await fs.readFile(wsApply, 'utf-8');
       expect(applyContent).toContain('<!-- OPENSPEC:START -->');
-      expect(applyContent).toContain('OpenSpec: Apply');
+      expect(applyContent).toContain('Work through tasks sequentially');
 
       const archiveContent = await fs.readFile(wsArchive, 'utf-8');
       expect(archiveContent).toContain('<!-- OPENSPEC:START -->');
-      expect(archiveContent).toContain('OpenSpec: Archive');
+      expect(archiveContent).toContain('Run `openspec archive <id> --yes`');
     });
 
     it('should always create AGENTS.md in project root', async () => {

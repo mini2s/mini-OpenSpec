@@ -19,17 +19,4 @@ export class WindsurfSlashCommandConfigurator extends SlashCommandConfigurator {
     // Keep Windsurf workflows simple: no YAML frontmatter
     return undefined;
   }
-
-  protected getIntro(id: SlashCommandId): string | undefined {
-    switch (id) {
-      case 'proposal':
-        return '## OpenSpec: Proposal (Windsurf)\nScaffold a new OpenSpec change proposal.';
-      case 'apply':
-        return '## OpenSpec: Apply (Windsurf)\nImplement an approved OpenSpec change.';
-      case 'archive':
-        return '## OpenSpec: Archive (Windsurf)\nArchive a completed change and update specs.';
-      default:
-        return undefined;
-    }
-  }
 }
