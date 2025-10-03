@@ -2,30 +2,9 @@ import { SlashCommandConfigurator } from './base.js';
 import { SlashCommandId } from '../../templates/index.js';
 
 const FILE_PATHS: Record<SlashCommandId, string> = {
-  proposal: '.windsurf/commands/openspec-proposal.md',
-  apply: '.windsurf/commands/openspec-apply.md',
-  archive: '.windsurf/commands/openspec-archive.md'
-};
-
-const FRONTMATTER: Record<SlashCommandId, string> = {
-  proposal: `---
-name: /openspec-proposal
-id: openspec-proposal
-category: OpenSpec
-description: Scaffold a new OpenSpec change and validate strictly.
----`,
-  apply: `---
-name: /openspec-apply
-id: openspec-apply
-category: OpenSpec
-description: Implement an approved OpenSpec change and keep tasks in sync.
----`,
-  archive: `---
-name: /openspec-archive
-id: openspec-archive
-category: OpenSpec
-description: Archive a deployed OpenSpec change and update specs.
----`
+  proposal: '.windsurf/workflows/openspec-proposal.md',
+  apply: '.windsurf/workflows/openspec-apply.md',
+  archive: '.windsurf/workflows/openspec-archive.md'
 };
 
 export class WindsurfSlashCommandConfigurator extends SlashCommandConfigurator {
@@ -36,7 +15,21 @@ export class WindsurfSlashCommandConfigurator extends SlashCommandConfigurator {
     return FILE_PATHS[id];
   }
 
-  protected getFrontmatter(id: SlashCommandId): string {
-    return FRONTMATTER[id];
+  protected getFrontmatter(_id: SlashCommandId): string | undefined {
+    // Keep Windsurf workflows simple: no YAML frontmatter
+    return undefined;
+  }
+
+  protected getIntro(id: SlashCommandId): string | undefined {
+    switch (id) {
+      case 'proposal':
+        return '## OpenSpec: Proposal (Windsurf)\nScaffold a new OpenSpec change proposal.';
+      case 'apply':
+        return '## OpenSpec: Apply (Windsurf)\nImplement an approved OpenSpec change.';
+      case 'archive':
+        return '## OpenSpec: Archive (Windsurf)\nArchive a completed change and update specs.';
+      default:
+        return undefined;
+    }
   }
 }
