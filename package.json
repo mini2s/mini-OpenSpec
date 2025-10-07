@@ -47,7 +47,7 @@
     "prepare": "pnpm run build",
     "prepublishOnly": "pnpm run build",
     "check:pack-version": "node scripts/pack-version-check.mjs",
-    "release": "pnpm exec changeset version && pnpm run build && pnpm run check:pack-version && pnpm exec changeset publish",
+    "release": "pnpm run check:pack-version && pnpm exec changeset publish",
     "changeset": "changeset"
   },
   "engines": {

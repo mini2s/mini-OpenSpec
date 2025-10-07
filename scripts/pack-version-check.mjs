@@ -35,35 +35,57 @@ function main() {
   const pkg = JSON.parse(readFileSync(path.join(process.cwd(), 'package.json'), 'utf-8'));
   const expected = pkg.version;
 
-  log(`Packing @fission-ai/openspec@${expected}...`);
-  const filename = npmPack();
-  const tgzPath = path.resolve(filename);
-  log(`Created: ${tgzPath}`);
+  let work;
+  let tgzPath;
 
-  const work = mkdtempSync(path.join(tmpdir(), 'openspec-pack-check-'));
-  log(`Temp dir: ${work}`);
+  try {
+    log(`Packing @fission-ai/openspec@${expected}...`);
+    const filename = npmPack();
+    tgzPath = path.resolve(filename);
+    log(`Created: ${tgzPath}`);
 
-  // Make a tiny project
-  writeFileSync(path.join(work, 'package.json'), JSON.stringify({ name: 'pack-check', private: true }, null, 2));
+    work = mkdtempSync(path.join(tmpdir(), 'openspec-pack-check-'));
+    log(`Temp dir: ${work}`);
 
-  // Try to avoid noisy output
-  const env = { ...process.env, npm_config_loglevel: 'silent' };
+    // Make a tiny project
+    writeFileSync(
+      path.join(work, 'package.json'),
+      JSON.stringify({ name: 'pack-check', private: true }, null, 2)
+    );
 
-  // Install the tarball
-  run('npm', ['install', tgzPath, '--silent'], { cwd: work, env });
+    // Try to avoid noisy output and speed up
+    const env = {
+      ...process.env,
+      npm_config_loglevel: 'silent',
+      npm_config_audit: 'false',
+      npm_config_fund: 'false',
+      npm_config_progress: 'false',
+    };
 
-  // Run the installed CLI via Node to avoid bin resolution/platform issues
-  const binRel = path.join('node_modules', '@fission-ai', 'openspec', 'bin', 'openspec.js');
-  const actual = run(process.execPath, [binRel, '--version'], { cwd: work }).trim();
+    // Install the tarball
+    run('npm', ['install', tgzPath, '--silent', '--no-audit', '--no-fund'], { cwd: work, env });
 
-  if (actual !== expected) {
-    throw new Error(`Packed CLI version mismatch: expected ${expected}, got ${actual}`);
+    // Run the installed CLI via Node to avoid bin resolution/platform issues
+    const binRel = path.join('node_modules', '@fission-ai', 'openspec', 'bin', 'openspec.js');
+    const actual = run(process.execPath, [binRel, '--version'], { cwd: work }).trim();
+
+    if (actual !== expected) {
+      throw new Error(
+        `Packed CLI version mismatch: expected ${expected}, got ${actual}. ` +
+          'Ensure the dist is built and the CLI reads version from package.json.'
+      );
+    }
+
+    log('Version check passed.');
+  } finally {
+    // Always attempt cleanup
+    if (work) {
+      try { rmSync(work, { recursive: true, force: true }); } catch {}
+    }
+    if (tgzPath) {
+      try { rmSync(tgzPath, { force: true }); } catch {}
+    }
   }
-
-  log('Version check passed. Cleaning up...');
-  // Cleanup temp dir and local tgz
-  try { rmSync(work, { recursive: true, force: true }); } catch {}
-  try { rmSync(tgzPath, { force: true }); } catch {}
 }
 
 try {
@@ -73,4 +95,3 @@ try {
   console.error(`❌ pack-version-check: ${err.message}`);
   process.exit(1);
 }
-
