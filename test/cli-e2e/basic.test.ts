@@ -4,6 +4,15 @@ import path from 'path';
 import { tmpdir } from 'os';
 import { runCLI, cliProjectRoot } from '../helpers/run-cli.js';
 
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const tempRoots: string[] = [];
 
 async function prepareFixture(fixtureName: string): Promise<string> {
@@ -52,5 +61,77 @@ describe('openspec CLI e2e basics', () => {
     const result = await runCLI(['validate', 'does-not-exist'], { cwd: projectDir });
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("Unknown item 'does-not-exist'");
+  });
+
+  describe('init command non-interactive options', () => {
+    it('initializes with --all-tools option', async () => {
+      const projectDir = await prepareFixture('tmp-init');
+      const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
+      await fs.mkdir(emptyProjectDir, { recursive: true });
+
+      const result = await runCLI(['init', '--all-tools'], { cwd: emptyProjectDir });
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain('Tool summary:');
+
+      // Check that tool configurations were created
+      const claudePath = path.join(emptyProjectDir, 'CLAUDE.md');
+      const cursorProposal = path.join(emptyProjectDir, '.cursor/commands/openspec-proposal.md');
+      expect(await fileExists(claudePath)).toBe(true);
+      expect(await fileExists(cursorProposal)).toBe(true);
+    });
+
+    it('initializes with --tools option', async () => {
+      const projectDir = await prepareFixture('tmp-init');
+      const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
+      await fs.mkdir(emptyProjectDir, { recursive: true });
+
+      const result = await runCLI(['init', '--tools', 'claude'], { cwd: emptyProjectDir });
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain('Tool summary:');
+
+      const claudePath = path.join(emptyProjectDir, 'CLAUDE.md');
+      const cursorProposal = path.join(emptyProjectDir, '.cursor/commands/openspec-proposal.md');
+      expect(await fileExists(claudePath)).toBe(true);
+      expect(await fileExists(cursorProposal)).toBe(false); // Not selected
+    });
+
+    it('initializes with --skip-tools option', async () => {
+      const projectDir = await prepareFixture('tmp-init');
+      const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
+      await fs.mkdir(emptyProjectDir, { recursive: true });
+
+      const result = await runCLI(['init', '--skip-tools'], { cwd: emptyProjectDir });
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain('Tool summary:');
+
+      const claudePath = path.join(emptyProjectDir, 'CLAUDE.md');
+      const cursorProposal = path.join(emptyProjectDir, '.cursor/commands/openspec-proposal.md');
+      const rootAgentsPath = path.join(emptyProjectDir, 'AGENTS.md');
+
+      expect(await fileExists(rootAgentsPath)).toBe(true);
+      expect(await fileExists(claudePath)).toBe(false);
+      expect(await fileExists(cursorProposal)).toBe(false);
+    });
+
+    it('returns error for invalid tool names', async () => {
+      const projectDir = await prepareFixture('tmp-init');
+      const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
+      await fs.mkdir(emptyProjectDir, { recursive: true });
+
+      const result = await runCLI(['init', '--tools', 'invalid-tool'], { cwd: emptyProjectDir });
+      expect(result.exitCode).toBe(1);
+      expect(result.stderr).toContain('Invalid tool(s): invalid-tool');
+      expect(result.stderr).toContain('Available tools:');
+    });
+
+    it('returns error for conflicting options', async () => {
+      const projectDir = await prepareFixture('tmp-init');
+      const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
+      await fs.mkdir(emptyProjectDir, { recursive: true });
+
+      const result = await runCLI(['init', '--all-tools', '--skip-tools'], { cwd: emptyProjectDir });
+      expect(result.exitCode).toBe(1);
+      expect(result.stderr).toContain('Cannot specify multiple tool selection options');
+    });
   });
 });

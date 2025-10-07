@@ -36,8 +36,17 @@ program.hook('preAction', (thisCommand) => {
 program
   .command('init [path]')
   .description('Initialize OpenSpec in your project')
-  .action(async (targetPath = '.') => {
+  .option('--tools <tools>', 'Comma-separated list of AI tools to configure (claude,cursor,opencode,kilocode,windsurf)')
+  .option('--all-tools', 'Configure all available AI tools')
+  .option('--skip-tools', 'Skip AI tool configuration (structure only)')
+  .action(async (targetPath = '.', options?: { tools?: string; allTools?: boolean; skipTools?: boolean }) => {
     try {
+      // Validate tool selection options
+      const optionCount = [options?.tools, options?.allTools, options?.skipTools].filter(Boolean).length;
+      if (optionCount > 1) {
+        throw new Error('Cannot specify multiple tool selection options. Use only one of: --tools, --all-tools, or --skip-tools');
+      }
+
       // Validate that the path is a valid directory
       const resolvedPath = path.resolve(targetPath);
       
@@ -57,7 +66,11 @@ program
         }
       }
       
-      const initCommand = new InitCommand();
+      const initCommand = new InitCommand({
+        tools: options?.tools,
+        allTools: options?.allTools,
+        noTools: options?.skipTools,
+      });
       await initCommand.execute(targetPath);
     } catch (error) {
       console.log(); // Empty line for spacing

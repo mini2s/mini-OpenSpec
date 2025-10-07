@@ -359,13 +359,22 @@ const toolSelectionWizard = createPrompt<string[], ToolWizardConfig>(
 
 type InitCommandOptions = {
   prompt?: ToolSelectionPrompt;
+  tools?: string;
+  allTools?: boolean;
+  noTools?: boolean;
 };
 
 export class InitCommand {
   private readonly prompt: ToolSelectionPrompt;
+  private readonly tools?: string;
+  private readonly allTools?: boolean;
+  private readonly noTools?: boolean;
 
   constructor(options: InitCommandOptions = {}) {
     this.prompt = options.prompt ?? ((config) => toolSelectionWizard(config));
+    this.tools = options.tools;
+    this.allTools = options.allTools;
+    this.noTools = options.noTools;
   }
 
   async execute(targetPath: string): Promise<void> {
@@ -460,11 +469,50 @@ export class InitCommand {
     existingTools: Record<string, boolean>,
     extendMode: boolean
   ): Promise<OpenSpecConfig> {
-    const selectedTools = await this.promptForAITools(
-      existingTools,
-      extendMode
-    );
+    const selectedTools = await this.getSelectedTools(existingTools, extendMode);
     return { aiTools: selectedTools };
+  }
+
+  private async getSelectedTools(
+    existingTools: Record<string, boolean>,
+    extendMode: boolean
+  ): Promise<string[]> {
+    // Handle non-interactive options
+    if (this.noTools) {
+      return [];
+    }
+
+    if (this.allTools) {
+      return AI_TOOLS.filter(tool => tool.available).map(tool => tool.value);
+    }
+
+    if (this.tools) {
+      const requestedTools = this.tools.split(',').map(t => t.trim());
+      const availableTools = AI_TOOLS.filter(tool => tool.available);
+      const validTools: string[] = [];
+      const invalidTools: string[] = [];
+
+      for (const requestedTool of requestedTools) {
+        const tool = availableTools.find(t => t.value === requestedTool);
+        if (tool) {
+          validTools.push(requestedTool);
+        } else {
+          invalidTools.push(requestedTool);
+        }
+      }
+
+      if (invalidTools.length > 0) {
+        const availableValues = availableTools.map(t => t.value).join(', ');
+        throw new Error(
+          `Invalid tool(s): ${invalidTools.join(', ')}. Available tools: ${availableValues}`
+        );
+      }
+
+      return validTools;
+    }
+
+    // Fall back to interactive mode
+    return this.promptForAITools(existingTools, extendMode);
   }
 
   private async promptForAITools(
