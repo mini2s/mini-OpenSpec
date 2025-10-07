@@ -1,6 +1,14 @@
 #!/usr/bin/env node
-// Verifies that the packed tarball prints the same version as package.json
-// by installing the packed tgz into a temp project and running `openspec --version`.
+// Guard: Ensure the packed tarball's CLI `--version` matches package.json.
+//
+// Notes:
+// - We intentionally use `npm pack` (not pnpm) because `npm pack --json` is
+//   consistently supported and returns the tarball metadata we need. The
+//   project uses pnpm for install/publish, but this guard only needs to pack
+//   locally and verify the installed CLI output.
+// - `npm pack` triggers the package's `prepare` script (build), and
+//   `changeset publish` triggers `prepublishOnly` (also builds here). This
+//   means an explicit build is not strictly necessary for the guard.
 
 import { execFileSync } from 'child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
@@ -20,11 +28,17 @@ function npmPack() {
   try {
     const jsonOut = run('npm', ['pack', '--json', '--silent']);
     const arr = JSON.parse(jsonOut);
-    const file = Array.isArray(arr) && arr.length > 0 ? arr[arr.length - 1].filename || arr[arr.length - 1] : null;
-    if (!file) throw new Error('npm pack returned unexpected JSON');
-    return file.trim();
+    if (Array.isArray(arr) && arr.length > 0) {
+      const last = arr[arr.length - 1];
+      const file = (last && typeof last === 'object' && last.filename) || (typeof last === 'string' ? last : null);
+      if (file) return String(file).trim();
+    }
+    // Unexpected JSON shape or empty array; fallback to plain output
+    const out = run('npm', ['pack', '--silent']).trim();
+    const lines = out.split(/\r?\n/);
+    return lines[lines.length - 1].trim();
   } catch (e) {
-    // Fallback for older npm: last line of output is filename
+    // Fallback for environments not supporting --json
     const out = run('npm', ['pack', '--silent']).trim();
     const lines = out.split(/\r?\n/);
     return lines[lines.length - 1].trim();
