@@ -67,7 +67,7 @@ export abstract class SlashCommandConfigurator {
   protected abstract getRelativePath(id: SlashCommandId): string;
   protected abstract getFrontmatter(id: SlashCommandId): string | undefined;
 
-  private async updateBody(filePath: string, body: string): Promise<void> {
+  protected async updateBody(filePath: string, body: string): Promise<void> {
     const content = await FileSystemUtils.readFile(filePath);
     const startIndex = content.indexOf(OPENSPEC_MARKERS.start);
     const endIndex = content.indexOf(OPENSPEC_MARKERS.end);

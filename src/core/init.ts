@@ -516,7 +516,7 @@ export class InitCommand {
         value: OTHER_TOOLS_HEADING_VALUE,
         label: {
           primary:
-            'Other tools (use Universal AGENTS.md for Codex, Amp, VS Code, GitHub Copilot, …)',
+            'Other tools (use Universal AGENTS.md for Amp, VS Code, GitHub Copilot, …)',
         },
         selectable: false,
       },

@@ -309,6 +309,42 @@ describe('InitCommand', () => {
       expect(archiveContent).toContain('openspec list --specs');
     });
 
+    it('should create Codex prompts with templates and placeholders', async () => {
+      queueSelections('codex', DONE);
+
+      await initCommand.execute(testDir);
+
+      const proposalPath = path.join(
+        testDir,
+        '.codex/prompts/openspec-proposal.md'
+      );
+      const applyPath = path.join(
+        testDir,
+        '.codex/prompts/openspec-apply.md'
+      );
+      const archivePath = path.join(
+        testDir,
+        '.codex/prompts/openspec-archive.md'
+      );
+
+      expect(await fileExists(proposalPath)).toBe(true);
+      expect(await fileExists(applyPath)).toBe(true);
+      expect(await fileExists(archivePath)).toBe(true);
+
+      const proposalContent = await fs.readFile(proposalPath, 'utf-8');
+      expect(proposalContent).toContain('Request: $1');
+      expect(proposalContent).toContain('<!-- OPENSPEC:START -->');
+      expect(proposalContent).toContain('**Guardrails**');
+
+      const applyContent = await fs.readFile(applyPath, 'utf-8');
+      expect(applyContent).toContain('Change ID: $1');
+      expect(applyContent).toContain('Work through tasks sequentially');
+
+      const archiveContent = await fs.readFile(archivePath, 'utf-8');
+      expect(archiveContent).toContain('Change ID: $1');
+      expect(archiveContent).toContain('openspec archive <id> --yes');
+    });
+
     it('should create Kilo Code workflows with templates', async () => {
       queueSelections('kilocode', DONE);
 
@@ -454,6 +490,18 @@ describe('InitCommand', () => {
         (choice: any) => choice.value === 'windsurf'
       );
       expect(wsChoice.configured).toBe(true);
+    });
+
+    it('should mark Codex as already configured during extend mode', async () => {
+      queueSelections('codex', DONE, 'codex', DONE);
+      await initCommand.execute(testDir);
+      await initCommand.execute(testDir);
+
+      const secondRunArgs = mockPrompt.mock.calls[1][0];
+      const codexChoice = secondRunArgs.choices.find(
+        (choice: any) => choice.value === 'codex'
+      );
+      expect(codexChoice.configured).toBe(true);
     });
   });
 

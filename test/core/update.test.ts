@@ -249,6 +249,61 @@ Old body
     consoleSpy.mockRestore();
   });
 
+  it('should refresh existing Codex prompts', async () => {
+    const codexPath = path.join(
+      testDir,
+      '.codex/prompts/openspec-apply.md'
+    );
+    await fs.mkdir(path.dirname(codexPath), { recursive: true });
+    const initialContent = `Change ID: $1\n<!-- OPENSPEC:START -->\nOld body\n<!-- OPENSPEC:END -->`;
+    await fs.writeFile(codexPath, initialContent);
+
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    await updateCommand.execute(testDir);
+
+    const updated = await fs.readFile(codexPath, 'utf-8');
+    expect(updated).toContain('Change ID: $1');
+    expect(updated).toContain('Work through tasks sequentially');
+    expect(updated).not.toContain('Old body');
+
+    const [logMessage] = consoleSpy.mock.calls[0];
+    expect(logMessage).toContain(
+      'Updated slash commands: .codex/prompts/openspec-apply.md'
+    );
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should not create missing Codex prompts on update', async () => {
+    const codexApply = path.join(
+      testDir,
+      '.codex/prompts/openspec-apply.md'
+    );
+
+    // Only create apply; leave proposal and archive missing
+    await fs.mkdir(path.dirname(codexApply), { recursive: true });
+    await fs.writeFile(
+      codexApply,
+      'Change ID: $1\n<!-- OPENSPEC:START -->\nOld\n<!-- OPENSPEC:END -->'
+    );
+
+    await updateCommand.execute(testDir);
+
+    const codexProposal = path.join(
+      testDir,
+      '.codex/prompts/openspec-proposal.md'
+    );
+    const codexArchive = path.join(
+      testDir,
+      '.codex/prompts/openspec-archive.md'
+    );
+
+    // Confirm they weren't created by update
+    await expect(FileSystemUtils.fileExists(codexProposal)).resolves.toBe(false);
+    await expect(FileSystemUtils.fileExists(codexArchive)).resolves.toBe(false);
+  });
+
   it('should preserve Windsurf content outside markers during update', async () => {
     const wsPath = path.join(
       testDir,

@@ -5,6 +5,7 @@
 ### Minor Changes
 
 - c29b06d: Add Windsurf support.
+- Add Codex slash command support (generates `.codex/prompts/openspec-*.md` and updates via `openspec update`).
 
 ## 0.7.0
 
