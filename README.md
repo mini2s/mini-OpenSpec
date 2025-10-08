@@ -105,7 +105,7 @@ These tools automatically read workflow instructions from `openspec/AGENTS.md`. 
 
 | Tools |
 |-------|
-| Amp • Jules • Gemini CLI • GitHub Copilot • Others |
+| Amp • Jules • Gemini CLI • Others |
 
 ### Install & Initialize
 
