@@ -4,10 +4,11 @@
 - Codex commands live outside the repository (under the user's home directory), so shipping an automated configurator that both scaffolds the prompts and keeps them refreshed via `openspec update` eliminates error-prone manual steps and keeps OpenSpec instructions synchronized across assistants.
 
 ## What Changes
-- Add Codex to the `openspec init` tool picker with the same "already configured" detection we use for other editors, wiring an implementation that writes managed Markdown prompts to `.codex/prompts/` (creating the directory when needed) with OpenSpec marker blocks.
+- Add Codex to the `openspec init` tool picker with the same "already configured" detection we use for other editors, wiring an implementation that writes managed Markdown prompts directly to Codex's global directory (`~/.codex/prompts` or `$CODEX_HOME/prompts`) with OpenSpec marker blocks.
 - Produce three Codex prompt files—`openspec-proposal.md`, `openspec-apply.md`, and `openspec-archive.md`—whose content mirrors the shared slash-command templates while adapting to Codex's numbered argument placeholders (e.g., `$1` for the change identifier or follow-up question text).
-- Teach `openspec update` to refresh existing Codex prompts in-place (and only when they already exist), preserving file permissions and the surrounding unmanaged content so teams can rely on the CLI for ongoing upkeep.
-- Document Codex support alongside other slash-command integrations and add regression coverage that exercises init/update behaviour against a temporary `.codex/prompts/` directory.
+- Document Codex's global-only discovery and that OpenSpec writes prompts directly to `~/.codex/prompts` (or `$CODEX_HOME/prompts`).
+- Teach `openspec update` to refresh existing Codex prompts in-place (and only when they already exist) in the global directory.
+- Document Codex support alongside other slash-command integrations and add regression coverage that exercises init/update behaviour against a temporary global prompts directory via `CODEX_HOME`.
 
 ## Impact
 - Specs: `cli-init`, `cli-update`

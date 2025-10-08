@@ -95,7 +95,7 @@ These tools have built-in OpenSpec commands. Select the OpenSpec integration whe
 | **OpenCode** | `/openspec-proposal`, `/openspec-apply`, `/openspec-archive` |
 | **Kilo Code** | `/openspec-proposal.md`, `/openspec-apply.md`, `/openspec-archive.md` (`.kilocode/workflows/`) |
 | **Windsurf** | `/openspec-proposal`, `/openspec-apply`, `/openspec-archive` (`.windsurf/workflows/`) |
-| **Codex** | `/openspec-proposal`, `/openspec-apply`, `/openspec-archive` (`.codex/prompts/`) |
+| **Codex** | `/openspec-proposal`, `/openspec-apply`, `/openspec-archive` (global: `~/.codex/prompts`, auto-installed) |
 
 Kilo Code discovers team workflows automatically. Save the generated files under `.kilocode/workflows/` and trigger them from the command palette with `/openspec-proposal.md`, `/openspec-apply.md`, or `/openspec-archive.md`.
 
@@ -142,6 +142,9 @@ openspec init
 **After setup:**
 - Primary AI tools can trigger `/openspec` workflows without additional configuration
 - Run `openspec list` to verify the setup and view any active changes
+
+Codex note:
+- Codex discovers prompts from `~/.codex/prompts` (or `$CODEX_HOME/prompts`). OpenSpec installs and updates these automatically when you select Codex during `openspec init` and when you run `openspec update`.
 
 ### Create Your First Change
 
@@ -208,7 +211,7 @@ Or run the command yourself in terminal:
 $ openspec archive add-profile-filters --yes  # Archive the completed change without prompts
 ```
 
-**Note:** Tools with native slash commands (Claude Code, Cursor) can use the shortcuts shown. All other tools work with natural language requests to "create an OpenSpec proposal", "apply the OpenSpec change", or "archive the change".
+**Note:** Tools with native slash commands (Claude Code, Cursor, Codex) can use the shortcuts shown. All other tools work with natural language requests to "create an OpenSpec proposal", "apply the OpenSpec change", or "archive the change".
 
 ## Command Reference
 

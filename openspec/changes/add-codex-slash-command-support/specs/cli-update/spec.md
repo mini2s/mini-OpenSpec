@@ -30,7 +30,7 @@ The update command SHALL refresh existing slash command files for configured too
 - **AND** skip creating missing files (the update command only refreshes what already exists)
 
 #### Scenario: Updating slash commands for Codex
-- **GIVEN** `.codex/prompts/` contains `openspec-proposal.md`, `openspec-apply.md`, and `openspec-archive.md`
+- **GIVEN** the global Codex prompt directory contains `openspec-proposal.md`, `openspec-apply.md`, and `openspec-archive.md`
 - **WHEN** a user runs `openspec update`
 - **THEN** refresh each file using the shared slash-command templates (including placeholder guidance)
 - **AND** preserve any unmanaged content outside the OpenSpec marker block

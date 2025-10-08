@@ -1,4 +1,5 @@
 import path from "path";
+import os from "os";
 import { SlashCommandConfigurator } from "./base.js";
 import { SlashCommandId, TemplateManager } from "../../templates/index.js";
 import { FileSystemUtils } from "../../../utils/file-system.js";
@@ -29,12 +30,21 @@ export class CodexSlashCommandConfigurator extends SlashCommandConfigurator {
     return headers[id];
   }
 
-  // Override to ensure prompt directory exists and wrap shared body with markers.
+  private getGlobalPromptsDir(): string {
+    const home = (process.env.CODEX_HOME && process.env.CODEX_HOME.trim())
+      ? process.env.CODEX_HOME.trim()
+      : path.join(os.homedir(), ".codex");
+    return path.join(home, "prompts");
+  }
+
+  // Codex discovers prompts globally. Generate directly in the global directory
+  // and wrap shared body with markers.
   async generateAll(projectPath: string, _openspecDir: string): Promise<string[]> {
     const createdOrUpdated: string[] = [];
     for (const target of this.getTargets()) {
       const body = TemplateManager.getSlashCommandBody(target.id).trim();
-      const filePath = path.join(projectPath, target.path);
+      const promptsDir = this.getGlobalPromptsDir();
+      const filePath = path.join(promptsDir, path.basename(target.path));
 
       await FileSystemUtils.createDirectory(path.dirname(filePath));
 
@@ -56,7 +66,8 @@ export class CodexSlashCommandConfigurator extends SlashCommandConfigurator {
   async updateExisting(projectPath: string, _openspecDir: string): Promise<string[]> {
     const updated: string[] = [];
     for (const target of this.getTargets()) {
-      const filePath = path.join(projectPath, target.path);
+      const promptsDir = this.getGlobalPromptsDir();
+      const filePath = path.join(promptsDir, path.basename(target.path));
       if (await FileSystemUtils.fileExists(filePath)) {
         const body = TemplateManager.getSlashCommandBody(target.id).trim();
         await this.updateBody(filePath, body);
@@ -65,5 +76,11 @@ export class CodexSlashCommandConfigurator extends SlashCommandConfigurator {
     }
     return updated;
   }
-}
 
+  // Resolve to the global prompts location for configuration detection
+  resolveAbsolutePath(_projectPath: string, id: SlashCommandId): string {
+    const promptsDir = this.getGlobalPromptsDir();
+    const fileName = path.basename(FILE_PATHS[id]);
+    return path.join(promptsDir, fileName);
+  }
+}

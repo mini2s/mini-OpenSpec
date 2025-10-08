@@ -10,6 +10,7 @@ import { randomUUID } from 'crypto';
 describe('UpdateCommand', () => {
   let testDir: string;
   let updateCommand: UpdateCommand;
+  let prevCodexHome: string | undefined;
 
   beforeEach(async () => {
     // Create a temporary test directory
@@ -21,11 +22,17 @@ describe('UpdateCommand', () => {
     await fs.mkdir(openspecDir, { recursive: true });
 
     updateCommand = new UpdateCommand();
+
+    // Route Codex global directory into the test sandbox
+    prevCodexHome = process.env.CODEX_HOME;
+    process.env.CODEX_HOME = path.join(testDir, '.codex');
   });
 
   afterEach(async () => {
     // Clean up test directory
     await fs.rm(testDir, { recursive: true, force: true });
+    if (prevCodexHome === undefined) delete process.env.CODEX_HOME;
+    else process.env.CODEX_HOME = prevCodexHome;
   });
 
   it('should update only existing CLAUDE.md file', async () => {

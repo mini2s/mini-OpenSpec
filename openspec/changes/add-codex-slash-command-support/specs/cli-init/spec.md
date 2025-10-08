@@ -10,7 +10,7 @@ The command SHALL configure AI coding assistants with OpenSpec instructions usin
   - OpenCode (creates or refreshes `.opencode/command/openspec-*.md` slash commands)
   - Windsurf (creates or refreshes `.windsurf/workflows/openspec-*.md` workflows)
   - Kilo Code (creates or refreshes `.kilocode/workflows/openspec-*.md` workflows)
-  - Codex (creates or refreshes `.codex/prompts/openspec-*.md` prompts)
+  - Codex (creates or refreshes global prompts at `~/.codex/prompts/openspec-*.md`)
   - AGENTS.md standard (creates or refreshes AGENTS.md with OpenSpec markers)
 - **AND** show "(already configured)" beside tools whose managed files exist so users understand selections will refresh content
 - **AND** treat disabled tools as "coming soon" and keep them unselectable
@@ -51,6 +51,6 @@ The init command SHALL generate slash command files for supported editors using 
 
 #### Scenario: Generating slash commands for Codex
 - **WHEN** the user selects Codex during initialization
-- **THEN** create `.codex/prompts/openspec-proposal.md`, `.codex/prompts/openspec-apply.md`, and `.codex/prompts/openspec-archive.md`
+- **THEN** create global prompt files at `~/.codex/prompts/openspec-proposal.md`, `~/.codex/prompts/openspec-apply.md`, and `~/.codex/prompts/openspec-archive.md` (or under `$CODEX_HOME/prompts` if set)
 - **AND** populate each file from shared templates that map the first numbered placeholder (`$1`) to the primary user input (e.g., change identifier or question text)
 - **AND** wrap the generated content in OpenSpec markers so `openspec update` can refresh the prompts without touching surrounding custom notes

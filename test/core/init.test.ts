@@ -36,6 +36,7 @@ function queueSelections(...values: string[]) {
 describe('InitCommand', () => {
   let testDir: string;
   let initCommand: InitCommand;
+  let prevCodexHome: string | undefined;
 
   beforeEach(async () => {
     testDir = path.join(os.tmpdir(), `openspec-init-test-${Date.now()}`);
@@ -44,6 +45,10 @@ describe('InitCommand', () => {
     mockPrompt.mockReset();
     initCommand = new InitCommand({ prompt: mockPrompt });
 
+    // Route Codex global directory into the test sandbox
+    prevCodexHome = process.env.CODEX_HOME;
+    process.env.CODEX_HOME = path.join(testDir, '.codex');
+
     // Mock console.log to suppress output during tests
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
@@ -51,6 +56,8 @@ describe('InitCommand', () => {
   afterEach(async () => {
     await fs.rm(testDir, { recursive: true, force: true });
     vi.restoreAllMocks();
+    if (prevCodexHome === undefined) delete process.env.CODEX_HOME;
+    else process.env.CODEX_HOME = prevCodexHome;
   });
 
   describe('execute', () => {

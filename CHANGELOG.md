@@ -11,7 +11,7 @@
 ### Minor Changes
 
 - c29b06d: Add Windsurf support.
-- Add Codex slash command support (generates `.codex/prompts/openspec-*.md` and updates via `openspec update`).
+- Add Codex slash command support. OpenSpec now writes prompts directly to Codex's global directory (`~/.codex/prompts` or `$CODEX_HOME/prompts`) and refreshes them on `openspec update`.
 
 ## 0.7.0
 

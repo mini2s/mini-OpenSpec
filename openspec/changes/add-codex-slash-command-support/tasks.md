@@ -1,6 +1,7 @@
 ## 1. CLI integration
-- [ ] 1.1 Add Codex to the init tool picker with display text that clarifies prompts live in `.codex/prompts/` and implement "already configured" detection by checking for managed Codex prompt files.
+- [ ] 1.1 Add Codex to the init tool picker with display text that clarifies prompts live in the global `.codex/prompts/` directory and implement "already configured" detection by checking for managed Codex prompt files.
 - [ ] 1.2 Implement a `CodexSlashCommandConfigurator` that writes `.codex/prompts/openspec-{proposal,apply,archive}.md`, ensuring the prompt directory exists and wrapping content in OpenSpec markers.
+// (No helper command required)
 - [ ] 1.3 Register the configurator with the slash-command registry and include Codex in init/update wiring so both commands invoke the new configurator when appropriate.
 
 ## 2. Prompt templates
@@ -9,7 +10,8 @@
 
 ## 3. Update support & tests
 - [ ] 3.1 Update the `openspec update` flow to refresh existing Codex prompts without creating new ones when files are missing.
-- [ ] 3.2 Add integration coverage that exercises init/update against a temporary `.codex/prompts/` directory, asserting marker preservation and idempotent updates.
+- [ ] 3.2 Add integration coverage that exercises init/update against a temporary global Codex prompts directory by setting `CODEX_HOME`, asserting marker preservation and idempotent updates.
+- [ ] 3.3 Document Codex's global-only discovery and automatic installation in README and CHANGELOG.
 - [ ] 3.3 Confirm error handling surfaces clear paths when the CLI cannot write to the Codex prompt directory (permissions, missing home directory, etc.).
 
 ## 4. Documentation
