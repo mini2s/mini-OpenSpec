@@ -143,9 +143,6 @@ openspec init
 - Primary AI tools can trigger `/openspec` workflows without additional configuration
 - Run `openspec list` to verify the setup and view any active changes
 
-Codex note:
-- Codex discovers prompts from `~/.codex/prompts` (or `$CODEX_HOME/prompts`). OpenSpec installs and updates these automatically when you select Codex during `openspec init` and when you run `openspec update`.
-
 ### Create Your First Change
 
 Here's a real example showing the complete OpenSpec workflow. This works with any AI tool. Those with native slash commands will recognize the shortcuts automatically.
