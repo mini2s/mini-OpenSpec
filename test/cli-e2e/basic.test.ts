@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { tmpdir } from 'os';
 import { runCLI, cliProjectRoot } from '../helpers/run-cli.js';
+import { AI_TOOLS } from '../../src/core/config.js';
 
 async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -35,6 +36,20 @@ describe('openspec CLI e2e basics', () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain('Usage: openspec');
     expect(result.stderr).toBe('');
+
+  });
+
+  it('shows dynamic tool ids in init help', async () => {
+    const result = await runCLI(['init', '--help']);
+    expect(result.exitCode).toBe(0);
+
+    const expectedTools = AI_TOOLS.filter((tool) => tool.available)
+      .map((tool) => tool.value)
+      .join(', ');
+    const normalizedOutput = result.stdout.replace(/\s+/g, ' ').trim();
+    expect(normalizedOutput).toContain(
+      `Use "all", "none", or a comma-separated list of: ${expectedTools}`
+    );
   });
 
   it('reports the package version', async () => {
