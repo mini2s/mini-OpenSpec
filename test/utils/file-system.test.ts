@@ -170,6 +170,14 @@ describe('FileSystemUtils', () => {
       expect(result).toBe('/tmp/project/.claude/commands/openspec/proposal.md');
     });
 
+    it('should join Linux home directory paths', () => {
+      const result = FileSystemUtils.joinPath(
+        '/home/dev/workspace/openspec',
+        '.cursor/commands/install.md'
+      );
+      expect(result).toBe('/home/dev/workspace/openspec/.cursor/commands/install.md');
+    });
+
     it('should join Windows drive-letter paths with backslashes', () => {
       const result = FileSystemUtils.joinPath(
         'C:\\Users\\dev\\project',
