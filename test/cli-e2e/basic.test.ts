@@ -64,12 +64,12 @@ describe('openspec CLI e2e basics', () => {
   });
 
   describe('init command non-interactive options', () => {
-    it('initializes with --all-tools option', async () => {
+    it('initializes with --tools all option', async () => {
       const projectDir = await prepareFixture('tmp-init');
       const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
       await fs.mkdir(emptyProjectDir, { recursive: true });
 
-      const result = await runCLI(['init', '--all-tools'], { cwd: emptyProjectDir });
+      const result = await runCLI(['init', '--tools', 'all'], { cwd: emptyProjectDir });
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('Tool summary:');
 
@@ -80,7 +80,7 @@ describe('openspec CLI e2e basics', () => {
       expect(await fileExists(cursorProposal)).toBe(true);
     });
 
-    it('initializes with --tools option', async () => {
+    it('initializes with --tools list option', async () => {
       const projectDir = await prepareFixture('tmp-init');
       const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
       await fs.mkdir(emptyProjectDir, { recursive: true });
@@ -95,12 +95,12 @@ describe('openspec CLI e2e basics', () => {
       expect(await fileExists(cursorProposal)).toBe(false); // Not selected
     });
 
-    it('initializes with --skip-tools option', async () => {
+    it('initializes with --tools none option', async () => {
       const projectDir = await prepareFixture('tmp-init');
       const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
       await fs.mkdir(emptyProjectDir, { recursive: true });
 
-      const result = await runCLI(['init', '--skip-tools'], { cwd: emptyProjectDir });
+      const result = await runCLI(['init', '--tools', 'none'], { cwd: emptyProjectDir });
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('Tool summary:');
 
@@ -121,17 +121,17 @@ describe('openspec CLI e2e basics', () => {
       const result = await runCLI(['init', '--tools', 'invalid-tool'], { cwd: emptyProjectDir });
       expect(result.exitCode).toBe(1);
       expect(result.stderr).toContain('Invalid tool(s): invalid-tool');
-      expect(result.stderr).toContain('Available tools:');
+      expect(result.stderr).toContain('Available values:');
     });
 
-    it('returns error for conflicting options', async () => {
+    it('returns error when combining reserved keywords with explicit ids', async () => {
       const projectDir = await prepareFixture('tmp-init');
       const emptyProjectDir = path.join(projectDir, '..', 'empty-project');
       await fs.mkdir(emptyProjectDir, { recursive: true });
 
-      const result = await runCLI(['init', '--all-tools', '--skip-tools'], { cwd: emptyProjectDir });
+      const result = await runCLI(['init', '--tools', 'all,claude'], { cwd: emptyProjectDir });
       expect(result.exitCode).toBe(1);
-      expect(result.stderr).toContain('Cannot specify multiple tool selection options');
+      expect(result.stderr).toContain('Cannot combine reserved values "all" or "none" with specific tool IDs');
     });
   });
 });

@@ -4,6 +4,7 @@ import ora from 'ora';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { InitCommand } from '../core/init.js';
+import { AI_TOOLS } from '../core/config.js';
 import { UpdateCommand } from '../core/update.js';
 import { ListCommand } from '../core/list.js';
 import { ArchiveCommand } from '../core/archive.js';
@@ -33,20 +34,15 @@ program.hook('preAction', (thisCommand) => {
   }
 });
 
+const availableToolIds = AI_TOOLS.filter((tool) => tool.available).map((tool) => tool.value);
+const toolsOptionDescription = `Configure AI tools non-interactively. Use "all", "none", or a comma-separated list of: ${availableToolIds.join(', ')}`;
+
 program
   .command('init [path]')
   .description('Initialize OpenSpec in your project')
-  .option('--tools <tools>', 'Comma-separated list of AI tools to configure (claude,cursor,opencode,kilocode,windsurf)')
-  .option('--all-tools', 'Configure all available AI tools')
-  .option('--skip-tools', 'Skip AI tool configuration (structure only)')
-  .action(async (targetPath = '.', options?: { tools?: string; allTools?: boolean; skipTools?: boolean }) => {
+  .option('--tools <tools>', toolsOptionDescription)
+  .action(async (targetPath = '.', options?: { tools?: string }) => {
     try {
-      // Validate tool selection options
-      const optionCount = [options?.tools, options?.allTools, options?.skipTools].filter(Boolean).length;
-      if (optionCount > 1) {
-        throw new Error('Cannot specify multiple tool selection options. Use only one of: --tools, --all-tools, or --skip-tools');
-      }
-
       // Validate that the path is a valid directory
       const resolvedPath = path.resolve(targetPath);
       
@@ -68,8 +64,6 @@ program
       
       const initCommand = new InitCommand({
         tools: options?.tools,
-        allTools: options?.allTools,
-        noTools: options?.skipTools,
       });
       await initCommand.execute(targetPath);
     } catch (error) {

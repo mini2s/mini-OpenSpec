@@ -573,8 +573,8 @@ describe('InitCommand', () => {
   });
 
   describe('non-interactive mode', () => {
-    it('should select all available tools with --all-tools option', async () => {
-      const nonInteractiveCommand = new InitCommand({ allTools: true });
+    it('should select all available tools with --tools all option', async () => {
+      const nonInteractiveCommand = new InitCommand({ tools: 'all' });
 
       await nonInteractiveCommand.execute(testDir);
 
@@ -614,8 +614,8 @@ describe('InitCommand', () => {
       expect(await fileExists(windsurfProposal)).toBe(false); // Not selected
     });
 
-    it('should skip tool configuration with --no-tools option', async () => {
-      const nonInteractiveCommand = new InitCommand({ noTools: true });
+    it('should skip tool configuration with --tools none option', async () => {
+      const nonInteractiveCommand = new InitCommand({ tools: 'none' });
 
       await nonInteractiveCommand.execute(testDir);
 
@@ -636,7 +636,7 @@ describe('InitCommand', () => {
       const nonInteractiveCommand = new InitCommand({ tools: 'invalid-tool' });
 
       await expect(nonInteractiveCommand.execute(testDir)).rejects.toThrow(
-        /Invalid tool\(s\): invalid-tool\. Available tools:/
+        /Invalid tool\(s\): invalid-tool\. Available values: /
       );
     });
 
@@ -653,6 +653,14 @@ describe('InitCommand', () => {
 
       expect(await fileExists(claudePath)).toBe(true);
       expect(await fileExists(cursorProposal)).toBe(true);
+    });
+
+    it('should reject combining reserved keywords with explicit tool ids', async () => {
+      const nonInteractiveCommand = new InitCommand({ tools: 'all,claude' });
+
+      await expect(nonInteractiveCommand.execute(testDir)).rejects.toThrow(
+        /Cannot combine reserved values "all" or "none" with specific tool IDs/
+      );
     });
   });
 
