@@ -13,6 +13,7 @@ import { registerSpecCommand } from '../commands/spec.js';
 import { ChangeCommand } from '../commands/change.js';
 import { ValidateCommand } from '../commands/validate.js';
 import { ShowCommand } from '../commands/show.js';
+import { FactoryCommand } from '../commands/factory.js';
 
 const program = new Command();
 const require = createRequire(import.meta.url);
@@ -114,6 +115,35 @@ program
       await viewCommand.execute('.');
     } catch (error) {
       console.log(); // Empty line for spacing
+      ora().fail(`Error: ${(error as Error).message}`);
+      process.exit(1);
+    }
+  });
+
+const factoryCmd = program
+  .command('factory')
+  .description('Manage Factory Droid custom slash commands');
+
+factoryCmd
+  .command('slash <name>')
+  .description('Scaffold a Factory slash command in .factory/commands')
+  .option('--description <text>', 'Override the command description shown in slash suggestions')
+  .option('--argument-hint <hint>', 'Append usage hints after the command name')
+  .option('--personal', 'Create the command in ~/.factory/commands instead of the workspace directory')
+  .option('--executable', 'Generate an executable script instead of Markdown')
+  .option('--force', 'Overwrite the command if it already exists')
+  .action(async (name: string, options?: {
+    description?: string;
+    argumentHint?: string;
+    personal?: boolean;
+    executable?: boolean;
+    force?: boolean;
+  }) => {
+    try {
+      const factoryCommand = new FactoryCommand();
+      await factoryCommand.slash(name, options ?? {});
+    } catch (error) {
+      console.log();
       ora().fail(`Error: ${(error as Error).message}`);
       process.exit(1);
     }

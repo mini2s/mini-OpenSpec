@@ -1,2 +1,1 @@
-// Shared utilities will be implemented here
-export {};
+export { slugifyFactoryCommand } from './slug.js';

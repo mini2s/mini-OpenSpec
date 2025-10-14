@@ -145,6 +145,20 @@ openspec init
 - Primary AI tools can trigger `/openspec` workflows without additional configuration
 - Run `openspec list` to verify the setup and view any active changes
 
+### Factory Droid custom commands
+
+Factory Droid turns every file in `.factory/commands` into a slash command. Repos can ship shared commands under `<repo>/.factory/commands` while private shortcuts live in `~/.factory/commands`; the workspace copy wins when both exist.【F:openspec/changes/add-factory-slash-scaffold/specs/factory-cli/spec.md†L5-L16】 Only Markdown files and executables with a shebang are registered, and filenames are slugged to lowercase with spaces converted to hyphens so `/Code Review.mdx` becomes `/code-review`.【F:openspec/changes/add-factory-slash-scaffold/specs/factory-cli/spec.md†L8-L23】
+
+Use the OpenSpec CLI to scaffold those files without memorizing Factory’s frontmatter:
+
+```bash
+openspec factory slash "Code Review" \
+  --description "Send a code review checklist" \
+  --argument-hint "<branch-name>"
+```
+
+The command creates `.factory/commands/code-review.md` with YAML frontmatter, `$ARGUMENTS` placeholders, and helpful TODOs. Add `--personal` to target `~/.factory/commands`, `--executable` to generate a `code-review.sh` script with a ready-to-edit Bash template, or `--force` to overwrite an existing file. Executable templates include a proper shebang and `set -euo pipefail` so they run inside Factory just like the docs describe.【F:openspec/changes/add-factory-slash-scaffold/specs/factory-cli/spec.md†L8-L47】
+
 ### Create Your First Change
 
 Here's a real example showing the complete OpenSpec workflow. This works with any AI tool. Those with native slash commands will recognize the shortcuts automatically.
