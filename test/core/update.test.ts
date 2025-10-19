@@ -513,6 +513,145 @@ Old body
     await expect(FileSystemUtils.fileExists(aqArchive)).resolves.toBe(false);
   });
 
+  it('should refresh existing Auggie slash command files', async () => {
+    const auggiePath = path.join(
+      testDir,
+      '.augment/commands/openspec-apply.md'
+    );
+    await fs.mkdir(path.dirname(auggiePath), { recursive: true });
+    const initialContent = `---
+description: Implement an approved OpenSpec change and keep tasks in sync.
+argument-hint: change-id
+---
+<!-- OPENSPEC:START -->
+Old body
+<!-- OPENSPEC:END -->`;
+    await fs.writeFile(auggiePath, initialContent);
+
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    await updateCommand.execute(testDir);
+
+    const updatedContent = await fs.readFile(auggiePath, 'utf-8');
+    expect(updatedContent).toContain('**Guardrails**');
+    expect(updatedContent).toContain('<!-- OPENSPEC:START -->');
+    expect(updatedContent).toContain('<!-- OPENSPEC:END -->');
+    expect(updatedContent).not.toContain('Old body');
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('.augment/commands/openspec-apply.md')
+    );
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should not create missing Auggie slash command files on update', async () => {
+    const auggieApply = path.join(
+      testDir,
+      '.augment/commands/openspec-apply.md'
+    );
+
+    // Only create apply; leave proposal and archive missing
+    await fs.mkdir(path.dirname(auggieApply), { recursive: true });
+    await fs.writeFile(
+      auggieApply,
+      '---\ndescription: Old\nargument-hint: old\n---\n<!-- OPENSPEC:START -->\nOld\n<!-- OPENSPEC:END -->'
+    );
+
+    await updateCommand.execute(testDir);
+
+    const auggieProposal = path.join(
+      testDir,
+      '.augment/commands/openspec-proposal.md'
+    );
+    const auggieArchive = path.join(
+      testDir,
+      '.augment/commands/openspec-archive.md'
+    );
+
+    // Confirm they weren't created by update
+    await expect(FileSystemUtils.fileExists(auggieProposal)).resolves.toBe(false);
+    await expect(FileSystemUtils.fileExists(auggieArchive)).resolves.toBe(false);
+  });
+
+  it('should refresh existing Crush slash command files', async () => {
+    const crushPath = path.join(
+      testDir,
+      '.crush/commands/openspec/proposal.md'
+    );
+    await fs.mkdir(path.dirname(crushPath), { recursive: true });
+    const initialContent = `---
+name: OpenSpec: Proposal
+description: Old description
+category: OpenSpec
+tags: [openspec, change]
+---
+<!-- OPENSPEC:START -->
+Old slash content
+<!-- OPENSPEC:END -->`;
+    await fs.writeFile(crushPath, initialContent);
+
+    const consoleSpy = vi.spyOn(console, 'log');
+
+    await updateCommand.execute(testDir);
+
+    const updated = await fs.readFile(crushPath, 'utf-8');
+    expect(updated).toContain('name: OpenSpec: Proposal');
+    expect(updated).toContain('**Guardrails**');
+    expect(updated).toContain(
+      'Validate with `openspec validate <id> --strict`'
+    );
+    expect(updated).not.toContain('Old slash content');
+
+    const [logMessage] = consoleSpy.mock.calls[0];
+    expect(logMessage).toContain(
+      'Updated OpenSpec instructions (openspec/AGENTS.md'
+    );
+    expect(logMessage).toContain('AGENTS.md (created)');
+    expect(logMessage).toContain(
+      'Updated slash commands: .crush/commands/openspec/proposal.md'
+    );
+
+    consoleSpy.mockRestore();
+  });
+
+  it('should not create missing Crush slash command files on update', async () => {
+    const crushApply = path.join(
+      testDir,
+      '.crush/commands/openspec-apply.md'
+    );
+
+    // Only create apply; leave proposal and archive missing
+    await fs.mkdir(path.dirname(crushApply), { recursive: true });
+    await fs.writeFile(
+      crushApply,
+      `---
+name: OpenSpec: Apply
+description: Old description
+category: OpenSpec
+tags: [openspec, apply]
+---
+<!-- OPENSPEC:START -->
+Old body
+<!-- OPENSPEC:END -->`
+    );
+
+    await updateCommand.execute(testDir);
+
+    const crushProposal = path.join(
+      testDir,
+      '.crush/commands/openspec-proposal.md'
+    );
+    const crushArchive = path.join(
+      testDir,
+      '.crush/commands/openspec-archive.md'
+    );
+
+    // Confirm they weren't created by update
+    await expect(FileSystemUtils.fileExists(crushProposal)).resolves.toBe(false);
+    await expect(FileSystemUtils.fileExists(crushArchive)).resolves.toBe(false);
+  });
+
   it('should preserve Windsurf content outside markers during update', async () => {
     const wsPath = path.join(
       testDir,
