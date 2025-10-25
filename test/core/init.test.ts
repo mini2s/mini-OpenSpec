@@ -579,6 +579,44 @@ describe('InitCommand', () => {
       await expect(initCommand.execute(testDir)).resolves.toBeUndefined();
     });
 
+    it('should recreate deleted openspec/AGENTS.md in extend mode', async () => {
+      await testFileRecreationInExtendMode(
+        testDir,
+        initCommand,
+        'openspec/AGENTS.md',
+        'OpenSpec Instructions'
+      );
+    });
+
+    it('should recreate deleted openspec/project.md in extend mode', async () => {
+      await testFileRecreationInExtendMode(
+        testDir,
+        initCommand,
+        'openspec/project.md',
+        'Project Context'
+      );
+    });
+
+    it('should preserve existing template files in extend mode', async () => {
+      queueSelections('claude', DONE, DONE);
+
+      // First init
+      await initCommand.execute(testDir);
+
+      const agentsPath = path.join(testDir, 'openspec', 'AGENTS.md');
+      const customContent = '# My Custom AGENTS Content\nDo not overwrite this!';
+
+      // Modify the file with custom content
+      await fs.writeFile(agentsPath, customContent);
+
+      // Run init again - should NOT overwrite
+      await initCommand.execute(testDir);
+
+      const content = await fs.readFile(agentsPath, 'utf-8');
+      expect(content).toBe(customContent);
+      expect(content).not.toContain('OpenSpec Instructions');
+    });
+
     it('should handle non-existent target directory', async () => {
       queueSelections('claude', DONE);
 
@@ -1138,6 +1176,87 @@ describe('InitCommand', () => {
     });
   });
 
+  describe('already configured detection', () => {
+    it('should NOT show tools as already configured in fresh project with existing CLAUDE.md', async () => {
+      // Simulate user having their own CLAUDE.md before running openspec init
+      const claudePath = path.join(testDir, 'CLAUDE.md');
+      await fs.writeFile(claudePath, '# My Custom Claude Instructions\n');
+
+      queueSelections('claude', DONE);
+
+      await initCommand.execute(testDir);
+
+      // In the first run (non-interactive mode via queueSelections),
+      // the prompt is called with configured: false for claude
+      const firstCallArgs = mockPrompt.mock.calls[0][0];
+      const claudeChoice = firstCallArgs.choices.find(
+        (choice: any) => choice.value === 'claude'
+      );
+
+      expect(claudeChoice.configured).toBe(false);
+    });
+
+    it('should NOT show tools as already configured in fresh project with existing slash commands', async () => {
+      // Simulate user having their own custom slash commands
+      const customCommandDir = path.join(testDir, '.claude/commands/custom');
+      await fs.mkdir(customCommandDir, { recursive: true });
+      await fs.writeFile(
+        path.join(customCommandDir, 'mycommand.md'),
+        '# My Custom Command\n'
+      );
+
+      queueSelections('claude', DONE);
+
+      await initCommand.execute(testDir);
+
+      const firstCallArgs = mockPrompt.mock.calls[0][0];
+      const claudeChoice = firstCallArgs.choices.find(
+        (choice: any) => choice.value === 'claude'
+      );
+
+      expect(claudeChoice.configured).toBe(false);
+    });
+
+    it('should show tools as already configured in extend mode', async () => {
+      // First initialization
+      queueSelections('claude', DONE);
+      await initCommand.execute(testDir);
+
+      // Second initialization (extend mode)
+      queueSelections('cursor', DONE);
+      await initCommand.execute(testDir);
+
+      const secondCallArgs = mockPrompt.mock.calls[1][0];
+      const claudeChoice = secondCallArgs.choices.find(
+        (choice: any) => choice.value === 'claude'
+      );
+
+      expect(claudeChoice.configured).toBe(true);
+    });
+
+    it('should NOT show already configured for Codex in fresh init even with global prompts', async () => {
+      // Create global Codex prompts (simulating previous installation)
+      const codexPromptsDir = path.join(testDir, '.codex/prompts');
+      await fs.mkdir(codexPromptsDir, { recursive: true });
+      await fs.writeFile(
+        path.join(codexPromptsDir, 'openspec-proposal.md'),
+        '# Existing prompt\n'
+      );
+
+      queueSelections('claude', DONE);
+
+      await initCommand.execute(testDir);
+
+      const firstCallArgs = mockPrompt.mock.calls[0][0];
+      const codexChoice = firstCallArgs.choices.find(
+        (choice: any) => choice.value === 'codex'
+      );
+
+      // In fresh init, even global tools should not show as configured
+      expect(codexChoice.configured).toBe(false);
+    });
+  });
+
   describe('error handling', () => {
     it('should provide helpful error for insufficient permissions', async () => {
       // This is tricky to test cross-platform, but we can test the error message
@@ -1165,6 +1284,32 @@ describe('InitCommand', () => {
     });
   });
 });
+
+async function testFileRecreationInExtendMode(
+  testDir: string,
+  initCommand: InitCommand,
+  relativePath: string,
+  expectedContent: string
+): Promise<void> {
+  queueSelections('claude', DONE, DONE);
+
+  // First init
+  await initCommand.execute(testDir);
+
+  const filePath = path.join(testDir, relativePath);
+  expect(await fileExists(filePath)).toBe(true);
+
+  // Delete the file
+  await fs.unlink(filePath);
+  expect(await fileExists(filePath)).toBe(false);
+
+  // Run init again - should recreate the file
+  await initCommand.execute(testDir);
+  expect(await fileExists(filePath)).toBe(true);
+
+  const content = await fs.readFile(filePath, 'utf-8');
+  expect(content).toContain(expectedContent);
+}
 
 async function fileExists(filePath: string): Promise<boolean> {
   try {
