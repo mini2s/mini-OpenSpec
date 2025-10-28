@@ -5,7 +5,7 @@ import { TemplateManager } from '../templates/index.js';
 import { OPENSPEC_MARKERS } from '../config.js';
 
 export class CostrictConfigurator implements ToolConfigurator {
-  name = 'Costrict';
+  name = 'CoStrict';
   configFileName = 'COSTRICT.md';
   isAvailable = true;
 

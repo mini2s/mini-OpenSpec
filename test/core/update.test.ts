@@ -819,7 +819,7 @@ Old body
     await expect(FileSystemUtils.fileExists(crushArchive)).resolves.toBe(false);
   });
 
-  it('should refresh existing Costrict slash command files', async () => {
+  it('should refresh existing CoStrict slash command files', async () => {
     const costrictPath = path.join(
       testDir,
       '.cospec/openspec/commands/openspec-proposal.md'
@@ -860,7 +860,7 @@ Old body
     consoleSpy.mockRestore();
   });
 
-  it('should not create missing Costrict slash command files on update', async () => {
+  it('should not create missing CoStrict slash command files on update', async () => {
     const costrictApply = path.join(
       testDir,
       '.cospec/openspec/commands/openspec-apply.md'
@@ -898,9 +898,9 @@ Old
   it('should update only existing COSTRICT.md file', async () => {
     // Create COSTRICT.md file with initial content
     const costrictPath = path.join(testDir, 'COSTRICT.md');
-    const initialContent = `# Costrict Instructions
+    const initialContent = `# CoStrict Instructions
 
-Some existing Costrict instructions here.
+Some existing CoStrict instructions here.
 
 <!-- OPENSPEC:START -->
 Old OpenSpec content
@@ -920,7 +920,7 @@ More instructions after.`;
     expect(updatedContent).toContain('<!-- OPENSPEC:END -->');
     expect(updatedContent).toContain("@/openspec/AGENTS.md");
     expect(updatedContent).toContain('openspec update');
-    expect(updatedContent).toContain('Some existing Costrict instructions here');
+    expect(updatedContent).toContain('Some existing CoStrict instructions here');
     expect(updatedContent).toContain('More instructions after');
 
     // Check console output
@@ -945,7 +945,7 @@ More instructions after.`;
     expect(fileExists).toBe(false);
   });
 
-  it('should preserve Costrict content outside markers during update', async () => {
+  it('should preserve CoStrict content outside markers during update', async () => {
     const costrictPath = path.join(
       testDir,
       '.cospec/openspec/commands/openspec-proposal.md'
@@ -963,14 +963,13 @@ More instructions after.`;
     expect(updated).toContain('Validate with `openspec validate <id> --strict`');
   });
 
-  it('should handle configurator errors gracefully for Costrict', async () => {
+  it('should handle configurator errors gracefully for CoStrict', async () => {
     // Create COSTRICT.md file but make it read-only to cause an error
     const costrictPath = path.join(testDir, 'COSTRICT.md');
     await fs.writeFile(
       costrictPath,
       '<!-- OPENSPEC:START -->\nOld\n<!-- OPENSPEC:END -->'
     );
-    await fs.chmod(costrictPath, 0o444); // Read-only
 
     const consoleSpy = vi.spyOn(console, 'log');
     const errorSpy = vi.spyOn(console, 'error');
@@ -997,8 +996,6 @@ More instructions after.`;
     expect(logMessage).toContain('AGENTS.md (created)');
     expect(logMessage).toContain('Failed to update: COSTRICT.md');
 
-    // Restore permissions for cleanup
-    await fs.chmod(costrictPath, 0o644);
     consoleSpy.mockRestore();
     errorSpy.mockRestore();
     writeSpy.mockRestore();

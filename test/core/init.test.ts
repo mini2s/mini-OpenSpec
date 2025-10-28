@@ -996,7 +996,7 @@ describe('InitCommand', () => {
       expect(crushChoice.configured).toBe(true);
     });
 
-    it('should create Costrict slash command files with templates', async () => {
+    it('should create CoStrict slash command files with templates', async () => {
       queueSelections('costrict', DONE);
 
       await initCommand.execute(testDir);
@@ -1038,7 +1038,7 @@ describe('InitCommand', () => {
       expect(archiveContent).toContain('openspec archive <id> --yes');
     });
 
-    it('should mark Costrict as already configured during extend mode', async () => {
+    it('should mark CoStrict as already configured during extend mode', async () => {
       queueSelections('costrict', DONE, 'costrict', DONE);
       await initCommand.execute(testDir);
       await initCommand.execute(testDir);
@@ -1050,7 +1050,7 @@ describe('InitCommand', () => {
       expect(costrictChoice.configured).toBe(true);
     });
 
-    it('should create COSTRICT.md when Costrict is selected', async () => {
+    it('should create COSTRICT.md when CoStrict is selected', async () => {
       queueSelections('costrict', DONE);
 
       await initCommand.execute(testDir);
@@ -1070,7 +1070,7 @@ describe('InitCommand', () => {
 
       const costrictPath = path.join(testDir, 'COSTRICT.md');
       const existingContent =
-        '# My Costrict Instructions\nCustom instructions here';
+        '# My CoStrict Instructions\nCustom instructions here';
       await fs.writeFile(costrictPath, existingContent);
 
       await initCommand.execute(testDir);
